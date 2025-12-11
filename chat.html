@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tenant Portal Chat</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; }
+    .chat-container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 0 10px #ccc; padding: 20px; }
+    .chat-messages { height: 300px; overflow-y: auto; border: 1px solid #eee; padding: 10px; margin-bottom: 15px; background: #fafbfc; }
+    .chat-message { margin-bottom: 10px; }
+    .chat-message .sender { font-weight: bold; color: #480c57; }
+    .chat-message .timestamp { font-size: 0.8em; color: #460761; margin-left: 8px; }
+    .chat-form { display: flex; gap: 10px; }
+    .chat-form input, .chat-form textarea { padding: 8px; border: 1px solid #651580; border-radius: 4px; }
+    .chat-form input { width: 120px; }
+    .chat-form textarea { flex: 1; resize: none; }
+    .chat-form button { background: #4d0451; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; }
+    .chat-form button:hover { background: #4d0353; }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <h2>Community Chat</h2>
+    <div class="chat-messages" id="chatMessages"></div>
+    <form class="chat-form" id="chatForm">
+      <input type="text" id="sender" placeholder="Your name" required>
+      <textarea id="content" placeholder="Type your message..." required></textarea>
+      <button type="submit">Send</button>
+      <button type="button" id="deleteLatest">Delete Last Message</button>
+    </form>
+  </div>
+  <script>
+    const apiUrl = 'http://localhost:8080/api/messages';
+
+    function fetchMessages() {
+      fetch(apiUrl)
+        .then(res => res.json())
+        .then(messages => {
+          const chat = document.getElementById('chatMessages');
+          chat.innerHTML = '';
+          messages.forEach(msg => {
+            const div = document.createElement('div');
+            div.className = 'chat-message';
+            div.innerHTML = `<span class="sender">${msg.sender}</span>
+              <span class="timestamp">${new Date(msg.timestamp).toLocaleString()}</span>
+              <div>${msg.content}</div>`;
+            chat.appendChild(div);
+          });
+          chat.scrollTop = chat.scrollHeight;
+        });
+    }
+    document.getElementById('deleteLatest').addEventListener('click', function() {
+      fetch(apiUrl + '/latest', { method: 'DELETE' })
+        .then(response => {
+          if (!response.ok) {
+            alert('Failed to delete the latest message.');
+          }
+          fetchMessages();
+        })
+        .catch(() => alert('Could not connect to the server.'));
+    });
+    document.getElementById('chatForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const sender = document.getElementById('sender').value;
+      const content = document.getElementById('content').value;
+      fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sender, content })
+      }).then(() => {
+        document.getElementById('content').value = '';
+        fetchMessages();
+      });
+    });
+
+    // Poll for new messages every 2 seconds
+    setInterval(fetchMessages, 2000);
+    fetchMessages();
+  </script>
+</body>
+</html>
