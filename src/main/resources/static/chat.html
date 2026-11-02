@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tenant Portal Chat</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/chat.css">
+</head>
+<body>
+  <div class="chat-container">
+    <h2>Community Chat</h2>
+    <div class="chat-messages" id="chatMessages"></div>
+    <form class="chat-form" id="chatForm">
+      <input type="text" id="sender" placeholder="Your name" required>
+      <textarea id="content" placeholder="Type your message..." required></textarea>
+      <button type="submit">Send</button>
+      <button type="button" id="deleteLatest">Delete Last Message</button>
+    </form>
+  </div>
+  <script src="js/chat.js" defer></script>
+</body>
+</html>

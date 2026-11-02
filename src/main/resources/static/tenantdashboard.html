@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tenant Dashboard</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/tenant-dashboard.css">
+</head>
+<body>
+  <header>
+    Tenant Dashboard
+    <button id="logoutButton" type="button">Log out</button>
+  </header>
+  <div class="container">
+    <!-- Tenant Details -->
+    <div class="card">
+      <h3>Tenant Details</h3>
+      <p><strong>Name:</strong> <span id="tenantName">Loading...</span></p>
+      <p><strong>Flat No:</strong> <span id="tenantFlatNumber">Loading...</span></p>
+      <p><strong>Contact:</strong> <span id="tenantPhone">Loading...</span></p>
+    </div>
+    <!-- Rent Status -->
+    <div class="card">
+      <h3>Rent Status</h3>
+      <p><strong>Amount:</strong> ₹12,000</p>
+      <p><strong>Due Date:</strong> 10 Oct 2025</p>
+      <p><strong>Status:</strong> <span class="status-paid">Paid</span></p>
+    </div>
+   <!-- Complaint Status -->
+    <div class="card">
+      <h3>Complaint Status</h3>
+      <ul id="complaintList">
+        <li>
+          Leaking tap - <span class="solved">Resolved</span>
+        </li>
+        <li>
+          Lift not working - <span class="pending">Pending</span>
+          <button>Mark as Solved</button>
+        </li>
+      </ul>
+    </div>
+    <!-- Complaint Box -->
+    <div class="card">
+      <h3>Submit New Complaint</h3>
+      <form id="complaintForm">
+        <textarea name="complaint" id="complaintText" placeholder="Describe your issue..." required></textarea>
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+    <!-- Community Chat -->
+    <div class="card card-wide">
+      <h3>Community Chat</h3>
+      <iframe src="chat.html"></iframe>
+    </div>
+  </div>
+  <p id="dashboardMessage" class="form-message" role="alert" aria-live="polite"></p>
+  <script src="js/api.js" defer></script>
+  <script src="js/session.js" defer></script>
+  <script src="js/tenant-dashboard.js" defer></script>
+
+</body>
+</html>

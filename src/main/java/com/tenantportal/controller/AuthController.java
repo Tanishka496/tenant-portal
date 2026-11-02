@@ -12,6 +12,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.tenantportal.dto.LoginRequest;
 import com.tenantportal.dto.RegisterRequest;
 import com.tenantportal.dto.TenantResponse;
+import com.tenantportal.dto.AuthenticatedUserResponse;
 import com.tenantportal.service.AuthService;
 
 @RestController
@@ -53,5 +56,20 @@ public class AuthController {
         SecurityContextHolder.setContext(context);
         securityContextRepository.saveContext(context, httpRequest, httpResponse);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/me")
+    public AuthenticatedUserResponse currentUser(Authentication authentication) {
+        return new AuthenticatedUserResponse(
+                authentication.getName(),
+                authentication.getAuthorities().stream()
+                        .map(authority -> authority.getAuthority().replaceFirst("^ROLE_", ""))
+                        .findFirst()
+                        .orElseThrow());
+    }
+
+    @GetMapping("/csrf")
+    public CsrfToken csrfToken(CsrfToken csrfToken) {
+        return csrfToken;
     }
 }

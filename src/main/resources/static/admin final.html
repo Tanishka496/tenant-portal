@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/admin-dashboard.css">
+</head>
+<body>
+
+<header>
+  <h1>Admin Dashboard</h1>
+  <button id="logoutButton" type="button">Log out</button>
+</header>
+
+<div class="container">
+
+  <div class="section">
+    <h2>Tenant Details</h2>
+    <table>
+      <thead><tr><th>Name</th><th>Email</th><th>Flat No</th></tr></thead>
+      <tbody id="tenantTableBody"></tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Complaint Requests</h2>
+    <table>
+      <tr><th>Tenant</th><th>Issue</th><th>Status</th></tr>
+      <tr><td>Kathirvel</td><td>Leaky faucet</td><td>Pending</td></tr>
+      <tr><td>Priya</td><td>Noisy neighbors</td><td>Resolved</td></tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Rent Paid</h2>
+    <table>
+      <tr><th>Tenant</th><th>Month</th><th>Amount</th><th>Status</th></tr>
+      <tr><td>Kathirvel</td><td>September</td><td>₹10,000</td><td>Paid</td></tr>
+      <tr><td>Priya</td><td>September</td><td>₹10,000</td><td>Unpaid</td></tr>
+    </table>
+<!-- Community Chat -->
+<div class="card admin-chat-card">
+  <h3>Community Chat</h3>
+  <iframe src="chat.html" class="admin-chat-frame">
+  </iframe>
+</div>
+
+
+
+</div>
+<p id="dashboardMessage" class="form-message" role="alert" aria-live="polite"></p>
+<script src="js/api.js" defer></script>
+<script src="js/session.js" defer></script>
+<script src="js/admin-dashboard.js" defer></script>
+</body>
+</html>

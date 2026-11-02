@@ -96,6 +96,126 @@ class TenantAuthorizationIntegrationTest {
                 .andExpect(jsonPath("$.username").value(org.hamcrest.Matchers.not("tenant-b")));
     }
 
+    @Test
+    void loginReturnsAuthenticatedTenantRole() throws Exception {
+        mockMvc.perform(get("/api/auth/me").session(login("tenant-a", "tenant-password")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value("tenant-a"))
+                .andExpect(jsonPath("$.role").value("TENANT"));
+    }
+
+    @Test
+    void adminLoginReturnsAuthenticatedAdminRole() throws Exception {
+        mockMvc.perform(get("/api/auth/me").session(login("admin-test", "admin-password")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value("admin-test"))
+                .andExpect(jsonPath("$.role").value("ADMIN"));
+    }
+
+    @Test
+    void invalidCredentialsAreRejected() throws Exception {
+        mockMvc.perform(post("/api/auth/login")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"tenant-a\",\"password\":\"wrong-password\"}"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void unauthenticatedProtectedRequestIsRejected() throws Exception {
+        mockMvc.perform(get("/api/tenant/me"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void frontendStaticResourcesArePublic() throws Exception {
+        mockMvc.perform(get("/index.html"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void csrfTokenEndpointIsPublic() throws Exception {
+        mockMvc.perform(get("/api/auth/csrf"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").exists());
+    }
+
+    @Test
+    void registrationCreatesTenantAndNeverAdmin() throws Exception {
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "username": "new-tenant",
+                                  "password": "tenant-password",
+                                  "fullName": "New Tenant",
+                                  "email": "new@example.com",
+                                  "phone": "9000000003",
+                                  "flatNumber": "C-303"
+                                }
+                                """))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.username").value("new-tenant"));
+
+        mockMvc.perform(get("/api/auth/me").session(login("new-tenant", "tenant-password")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.role").value("TENANT"));
+    }
+
+    @Test
+    void duplicateUsernameAndEmailAreRejected() throws Exception {
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "username": "tenant-a",
+                                  "password": "tenant-password",
+                                  "fullName": "Duplicate User",
+                                  "email": "new-user@example.com",
+                                  "phone": "9000000004"
+                                }
+                                """))
+                .andExpect(status().isConflict());
+
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "username": "new-user",
+                                  "password": "tenant-password",
+                                  "fullName": "Duplicate Email",
+                                  "email": "a@example.com",
+                                  "phone": "9000000005"
+                                }
+                                """))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void logoutInvalidatesSessionAndRequiresCsrf() throws Exception {
+        MockHttpSession session = login("tenant-a", "tenant-password");
+
+        mockMvc.perform(post("/api/auth/logout").session(session))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(post("/api/auth/logout").with(csrf()).session(session))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/api/tenant/me").session(session))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void adminLogoutInvalidatesSession() throws Exception {
+        MockHttpSession session = login("admin-test", "admin-password");
+
+        mockMvc.perform(post("/api/auth/logout").with(csrf()).session(session))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/api/admin/tenants").session(session))
+                .andExpect(status().isUnauthorized());
+    }
+
     private MockHttpSession login(String username, String password) throws Exception {
         String body = "{\"username\":\"" + username + "\",\"password\":\"" + password + "\"}";
         MvcResult result = mockMvc.perform(post("/api/auth/login")

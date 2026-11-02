@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tenant Registration</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+  <div class="container registration-container">
+    <h2>Tenant Registration</h2>
+    <p>Welcome Home! You're one step away from joining our community</p>
+    <form id="registrationForm">
+      <label for="fullName">Full Name:</label>
+      <input type="text" name="fullName" id="fullName" maxlength="120" required>
+
+      <label for="username">Username:</label>
+      <input type="text" name="username" id="username" maxlength="80" required>
+
+      <label for="email">Email:</label>
+      <input type="email" name="email" id="email" maxlength="160" required>
+
+      <label for="phone">Phone Number:</label>
+      <input type="text" name="phone" id="phone" maxlength="30" required>
+
+      <label for="flatNumber">Flat Number:</label>
+      <input type="text" name="flatNumber" id="flatNumber" maxlength="30">
+
+      <label for="password">Password:</label>
+      <input type="password" name="password" id="password" minlength="8" maxlength="128" required>
+
+      <label for="confirmPassword">Confirm Password:</label>
+      <input type="password" name="confirmPassword" id="confirmPassword" minlength="8" maxlength="128" required>
+
+      <button id="registrationButton" type="submit">Register</button>
+    </form>
+    <p id="registrationMessage" class="form-message" role="alert" aria-live="polite"></p>
+   
+  </div>
+  <script src="js/api.js" defer></script>
+  <script src="js/registration.js" defer></script>
+</body>
+</html>

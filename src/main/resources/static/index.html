@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Login</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+  <div class="container">
+    <h1> Tenant Portal Login</h1>
+    <h3>Your one-stop solution for housing management</h3>
+    <h4>Login to Continue</h4>
+    <div class="login-modes" role="group" aria-label="Login type">
+      <button id="tenantLoginMode" class="login-mode active" type="button" aria-pressed="true">
+        Tenant Login
+      </button>
+      <button id="adminLoginMode" class="login-mode" type="button" aria-pressed="false">
+        Admin Login
+      </button>
+    </div>
+    <p id="loginModeMessage" class="login-mode-message">Sign in as a tenant.</p>
+    <form id="loginForm" method="post">
+      <label for="username">Username:</label>
+      <input type="text" name="username" id="username" required>
+
+      <label for="password">Password:</label>
+      <input type="password" name="password" id="password" required>
+
+        <button id="loginButton" type="submit">Login</button>
+      </form>
+      <p id="loginMessage" class="form-message" role="alert" aria-live="polite"></p>
+    <p>New Tenant? <a href="register.html">Register Here</a></p>
+  </div>
+
+<script src="js/api.js" defer></script>
+<script src="js/auth.js" defer></script>
+
+</body>
+</html>

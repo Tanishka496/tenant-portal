@@ -1,8 +1,8 @@
 # Tenant Portal
 
-Tenant Portal now contains the original static frontend prototype and a unified Spring Boot backend with database persistence, session authentication, and role-based authorization.
+Tenant Portal contains a vanilla JavaScript frontend served by a unified Spring Boot backend with database persistence, session authentication, and role-based authorization.
 
-> **Status:** Backend foundation implemented. Payment and chat integration remain intentionally out of scope for this phase.
+> **Status:** Authentication and frontend session integration are implemented. Payment and chat integration remain intentionally out of scope.
 
 ## 💡 Why This Project?
 
@@ -20,7 +20,7 @@ This project wasn't just about building a UI — it was built to practice the co
 
 ## 🛠️ Tech Stack
 
-**Frontend:** HTML, CSS, JavaScript (unchanged)
+**Frontend:** HTML, CSS, vanilla JavaScript served from Spring Boot static resources
 
 **Backend:** Java 21, Spring Boot, Spring Security, Spring Data JPA, H2, Maven
 
@@ -53,7 +53,30 @@ mvn test
 mvn spring-boot:run
 ```
 
-The backend starts on `http://localhost:8080`. The existing HTML frontend is not connected to these APIs yet.
+The application starts on `http://localhost:8080`. Open
+`http://localhost:8080/index.html` for the login page. The frontend uses the
+same-origin server session cookie; it does not store passwords, session IDs, or
+tokens in browser storage.
+
+For local development, the bootstrap admin username defaults to `admin`. Set
+`BOOTSTRAP_ADMIN_USERNAME` and `BOOTSTRAP_ADMIN_PASSWORD` before starting the
+application, rather than relying on fallback credentials:
+
+```powershell
+$env:BOOTSTRAP_ADMIN_USERNAME = "admin"
+$env:BOOTSTRAP_ADMIN_PASSWORD = "use-a-local-development-password"
+mvn spring-boot:run
+```
+
+Tenant registration is public and always creates a `TENANT` account. The
+administrator account is created only by the backend bootstrap initializer.
+After login, the backend role determines whether the user is redirected to the
+tenant or admin dashboard; the frontend does not accept a user-selected role.
+
+Logout is performed with `POST /api/auth/logout`. It invalidates the server
+session and requires the CSRF token sent by the frontend. The frontend obtains
+the CSRF token through `GET /api/auth/csrf` and sends it in the
+`X-XSRF-TOKEN` header for protected state-changing requests.
 
 The original root-level `TenantPortalApplication.java` and `RentPortalBackendApplication.java` files are preserved as legacy prototypes. Maven only compiles the unified application under `src/main/java`, so those prototype entry points are not active.
 
@@ -70,6 +93,14 @@ tenant-portal/
 │   ├── security/
 │   └── service/
 ├── src/main/resources/
+│   └── static/
+│       ├── css/
+│       ├── js/
+│       ├── index.html
+│       ├── register.html
+│       ├── tenantdashboard.html
+│       ├── admin final.html
+│       └── chat.html
 ├── src/test/java/com/tenantportal/
 ├── pom.xml
 ├── index.html
@@ -115,6 +146,37 @@ Content-Type: application/json
 
 The response creates an authenticated server-side session. Send its session cookie with later requests.
 
+### Current authenticated user
+
+```http
+GET /api/auth/me
+```
+
+Returns only the authenticated username and role:
+
+```json
+{"username":"tenant1","role":"TENANT"}
+```
+
+### CSRF token
+
+```http
+GET /api/auth/csrf
+```
+
+The response initializes the `XSRF-TOKEN` cookie used for protected
+state-changing requests. The cookie is readable by the frontend so it can be
+copied into the `X-XSRF-TOKEN` request header.
+
+### Logout
+
+```http
+POST /api/auth/logout
+X-XSRF-TOKEN: <token-from-XSRF-TOKEN-cookie>
+```
+
+The server invalidates the session and clears the session and CSRF cookies.
+
 ### Tenant profile
 
 ```http
@@ -135,7 +197,9 @@ This endpoint requires the `ADMIN` role.
 
 - [x] Backend integration foundation
 - [x] Authentication and role authorization foundation
-- [ ] Connect the existing frontend to the new APIs
+- [x] Connect login and registration frontend to the authentication APIs
+- [x] Add authenticated role discovery and session logout
+- [x] Protect logout with CSRF
 - [ ] Add complaints and rent/payment persistence
 - [ ] Add chat integration
 - [ ] Deploy frontend (Vercel/Netlify)
